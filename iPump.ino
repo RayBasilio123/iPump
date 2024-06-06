@@ -3,15 +3,15 @@
 #include <ESPAsyncWebServer.h>
 #include <PubSubClient.h>
 #include <ESPmDNS.h>
+#include <Preferences.h>
 
 const char* ssid_ap = "iPump-Access-Point";
 const char* password_ap = NULL;
-const char* ssid = "your_ssid";       // Replace with your WiFi SSID
-const char* password = "your_password"; // Replace with your WiFi password
 
 AsyncWebServer server(80);
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
+Preferences preferences;
 
 #define RELAY_PUMP_PIN  2
 #define RELAY_VALVE_PIN  4
@@ -63,9 +63,17 @@ void setup() {
   
   digitalWrite(RELAY_PUMP_PIN, LOW);  // bomba desligada inicialmente
   digitalWrite(RELAY_VALVE_PIN, LOW); // válvula fechada inicialmente
-  
-  // Conectar ao WiFi
-  WiFi.begin(ssid, password);
+
+  preferences.begin("wifi-creds", false);
+  String savedSSID = preferences.getString("ssid", "");
+  String savedPassword = preferences.getString("password", "");
+
+  if (savedSSID != "" && savedPassword != "") {
+    WiFi.begin(savedSSID.c_str(), savedPassword.c_str());
+  } else {
+    WiFi.begin(ssid_ap, password_ap);
+  }
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
@@ -219,6 +227,17 @@ void setupRoutes() {
     request->send(200, "text/html", networkPage());
   });
 
+  server.on("/saveNetwork", HTTP_POST, [](AsyncWebServerRequest *request){
+    if (request->hasParam("ssid", true) && request->hasParam("password", true)) {
+      String ssid = request->getParam("ssid", true)->value();
+      String password = request->getParam("password", true)->value();
+      preferences.putString("ssid", ssid);
+      preferences.putString("password", password);
+      WiFi.begin(ssid.c_str(), password.c_str());
+    }
+    request->redirect("/network?done=1");
+  });
+
   server.on("/mqtt", HTTP_POST, [](AsyncWebServerRequest *request){
     if (request->hasParam("broker", true) && request->hasParam("topic", true)) {
       strcpy(mqttBroker, request->getParam("broker", true)->value().c_str());
@@ -272,6 +291,11 @@ String networkPage() {
   String html = "<html><head><title>Network Settings</title>";
   html += "<style>body { font-family: Arial; }</style></head><body>";
   html += "<h1>Network Settings</h1>";
+  html += "<form action=\"/saveNetwork\" method=\"POST\">";
+  html += "WiFi SSID: <input type=\"text\" name=\"ssid\"><br>";
+  html += "WiFi Password: <input type=\"password\" name=\"password\"><br>";
+  html += "<button type=\"submit\">Save</button>";
+  html += "</form>";
   html += "<form action=\"/mqtt\" method=\"POST\">";
   html += "MQTT Broker: <input type=\"text\" name=\"broker\" value=\"" + String(mqttBroker) + "\"><br>";
   html += "MQTT Topic: <input type=\"text\" name=\"topic\" value=\"" + String(mqttTopic) + "\"><br>";
