@@ -1,6 +1,6 @@
 # Projeto: Controle de Bomba de Água com ESP32
 
-![Diagrama do Sistema](file-JZHcx9HD2xEKlrKGOZMNZjbL)
+![iPump](Ipump.webp)
 
 ## Descrição do Projeto
 
