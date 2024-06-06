@@ -4,7 +4,7 @@
 
 ## Descrição do Projeto
 
-Este projeto utiliza um microcontrolador ESP32 para controlar uma bomba de água e uma válvula solenóide, alternando entre duas caixas de água. O sistema possui os seguintes componentes e funcionalidades:
+Este projeto utiliza um microcontrolador ESP32 para controlar uma bomba de água e duas válvulas solenóides, alternando entre duas caixas de água. O sistema possui os seguintes componentes e funcionalidades:
 
 ### Componentes Principais
 - **ESP32**: Microcontrolador principal para gerenciamento do sistema.
@@ -37,7 +37,8 @@ O código está dividido em duas principais tarefas para aproveitar os dois núc
 ## Instruções para Uso
 
 1. **Configuração do WiFi**:
-   - Atualize as credenciais do WiFi (`ssid` e `password`) no código para conectar o ESP32 à sua rede.
+   - Atualize as credenciais do WiFi (`ssid` e `password`) no código para conectar o ESP32 à sua rede ou use a interface web para configurá-las.
+   - As credenciais serão salvas na memória não volátil (NVS).
 
 2. **Conexão MQTT**:
    - Configure o broker MQTT e os tópicos de controle no código ou através da interface web.
@@ -49,7 +50,7 @@ O código está dividido em duas principais tarefas para aproveitar os dois núc
    - Carregue o código no ESP32 utilizando o Arduino IDE ou outra plataforma compatível.
 
 5. **Acesso à Interface Web**:
-   - Conecte-se à rede WiFi do ESP32 (`iPump-Access-Point`) e acesse a interface web através do endereço `http://192.168.4.1`.
+   - Conecte-se à rede WiFi do ESP32 (`iPump-Access-Point`) e acesse a interface web através do endereço `http://ipump.local`.
 
 6. **Uso da Interface Web**:
    - Controle manualmente a bomba e as válvulas através dos botões na interface web.
